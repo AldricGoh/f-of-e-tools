@@ -25,16 +25,16 @@ OBJS-SF		=\
 		$(INIT-SF).o\
 		$(PROGRAM).o\
 
-all:	$(PROGRAM) $(PROGRAM).sr $(PROGRAM-SF) $(PROGRAM-SF).sr Makefile
+all:	$(PROGRAM).out $(PROGRAM).sr $(PROGRAM-SF) $(PROGRAM-SF).sr Makefile
 
 $(INIT).o: $(INIT).S
 	$(AS) $(ASFLAGS) $(INIT).S -o $(INIT).o
 
-$(PROGRAM): $(OBJS)
+$(PROGRAM).out: $(OBJS)
 	$(LD) $(LDFLAGS) $(OBJS) -o $@ -lc -lm -lgcc
 
-$(PROGRAM).sr:$(PROGRAM)
-	$(OBJCOPY) -O srec $(PROGRAM) $@
+$(PROGRAM).sr:$(PROGRAM).out
+	$(OBJCOPY) -O srec $(PROGRAM).out $@
 
 $(PROGRAM).o: $(PROGRAM).c Makefile
 	$(CC) $(CFLAGS) $(OPTFLAGS) -c $(PROGRAM).c
@@ -50,11 +50,11 @@ $(PROGRAM-SF).sr:$(PROGRAM-SF)
 	$(OBJCOPY) -O srec $(PROGRAM-SF) $@
 
 install: all
-	$(SREC2HEX) -b 4096 $(PROGRAM).sr
+	$(SREC2HEX) -b 4096 $(PROGRAM).sr 2> /dev/null
 	cp program.hex ../../programs
 	cp data.hex ../../programs
 
 clean:
-	$(RM) init.i *.o $(PROGRAM) $(PROGRAM).sr $(PROGRAM).map
+	$(RM) init.i *.o $(PROGRAM).out $(PROGRAM).sr $(PROGRAM).map
 	$(RM) init-sf.i *.o $(PROGRAM-SF) $(PROGRAM-SF).sr $(PROGRAM-SF).map
 	$(RM) program.hex data.hex
