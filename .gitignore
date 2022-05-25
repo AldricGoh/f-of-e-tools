@@ -1,6 +1,10 @@
-*.hex
-*.o
 *-sf
-*.sr
-*.map
+*.asc
+*.bin
+*.blif
+*.hex
 *.i
+*.json
+*.map
+*.o
+*.sr
