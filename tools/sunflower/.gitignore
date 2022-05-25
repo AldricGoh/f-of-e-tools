@@ -1,0 +1,31 @@
+conf/setup.conf
+simlog.node*
+sunflower.out
+
+#
+#	Binaries
+#
+*.o
+*.out
+*.sr
+*.map
+*.dump
+init.i
+
+#
+#	Bison files
+#
+sim/help.h
+sim/sf.tab.c
+
+
+#
+#	sf build files
+#
+
+sim/mversion.h
+sim/commands.tex
+sim/opstr-*.h
+sim/decode-*.h
+sim/sf
+sim/sf.output
