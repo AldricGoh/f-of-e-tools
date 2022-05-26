@@ -70,7 +70,7 @@ module regfile(clk, write, wrAddr, wrData, rdAddrA, rdDataA, rdAddrB, rdDataB);
 	 */
 	reg [31:0]	regDatA;
 	reg [31:0]	regDatB;
-	reg [31:0]	wrAddr_buf;
+	reg [4:0]	wrAddr_buf;
 	reg [31:0]	wrData_buf;
 	reg		write_buf;
 
@@ -105,6 +105,6 @@ module regfile(clk, write, wrAddr, wrData, rdAddrA, rdDataA, rdAddrB, rdDataB);
 		regDatB		<= regfile[rdAddrB];
 	end
 
-	assign	rdDataA = ((wrAddr_buf==rdAddrA_buf) & write_buf & wrAddr_buf!=32'b0) ? wrData_buf : regDatA;
-	assign	rdDataB = ((wrAddr_buf==rdAddrB_buf) & write_buf & wrAddr_buf!=32'b0) ? wrData_buf : regDatB;
+	assign	rdDataA = ((wrAddr_buf==rdAddrA_buf) & write_buf & wrAddr_buf!=5'b0) ? wrData_buf : regDatA;
+	assign	rdDataB = ((wrAddr_buf==rdAddrB_buf) & write_buf & wrAddr_buf!=5'b0) ? wrData_buf : regDatB;
 endmodule
