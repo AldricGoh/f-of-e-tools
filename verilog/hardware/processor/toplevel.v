@@ -103,30 +103,6 @@ module top (led);
 			.clk_stall(data_clk_stall)
 		);
 
-	// cache cache_inst(
-	// 	.clk(clk),
-	// 	.addr(data_addr),
-	// 	.write_data(data_WrData),
-	// 	.memwrite(data_memwrite),
-	// 	.memread(data_memread),
-	// 	.sign_mask(data_sign_mask),
-	// 	.read_data(data_out),
-	// 	.led(led),
-	// 	.clk_stall(data_clk_stall)
-	// );
-
-
-	// instruction_cache instr_cache_inst(
-	// 	.clk(clk),
-	// 	.addr(inst_in),
-	// 	.out(inst_out),
-	// 	.clk_stall(data_clk_stall),
-	// 	.mem_block_addr(block_addr),
-	// 	.new_line(new_line_read),
-	// 	.readmem(data_memread)
-	// );
-
-
 
 	/* 
 		If we ask clk to stall, set clock to constantly high
