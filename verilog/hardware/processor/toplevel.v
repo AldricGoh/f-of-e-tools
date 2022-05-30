@@ -66,6 +66,10 @@ module top (led);
 	 */
 	wire[31:0]	inst_in;
 	wire[31:0]	inst_out;
+	wire		inst_memread;
+	wire[26:0]	mem_addr;
+	wire[255:0]	inst_mem_out;
+	wire[255:0] inst_cache_in;
 	wire[31:0]	data_out;
 	wire[31:0]	data_addr;
 	wire[31:0]	data_WrData;
@@ -87,8 +91,25 @@ module top (led);
 	);
 
 	instruction_memory inst_mem( 
-		.addr(inst_in), 
-		.out(inst_out)
+		.addr(mem_addr), 
+		.out(inst_mem_out)
+	);
+
+	mux2to1_256 inst_mem2cache(
+		.input0(256'b0),
+		.input1(inst_mem_out),
+		.select(inst_memread),
+		.out(inst_cache_in)
+	);
+
+	instruction_cache inst_cache(
+		.clk(clk_proc),
+		.addr(inst_in),
+		.data_out(inst_out),
+		.mem_block_addr(mem_addr),
+		.readmem(inst_memread),
+		.new_line(inst_cache_in),
+		.clk_stall(data_clk_stall)
 	);
 
 	data_mem data_mem_inst(
