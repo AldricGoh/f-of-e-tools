@@ -43,8 +43,8 @@
 
 
 module instruction_memory(addr, out);
-	input [31:0]		addr;
-	output [31:0]		out;
+	input [26:0]		addr;
+	output [255:0]		out;
 
 	/*
 	 *	Size the instruction memory.
@@ -74,5 +74,11 @@ module instruction_memory(addr, out);
 		$readmemh("verilog/program.hex",instruction_memory);
 	end
 
-	assign out = instruction_memory[addr >> 2];
+	// assign out = instruction_memory[addr >> 2];
+
+	assign out = ({instruction_memory[{2'b0, addr, 3'b000}], instruction_memory[{2'b0, addr, 3'b001}],
+					instruction_memory[{2'b0, addr, 3'b010}], instruction_memory[{2'b0, addr, 3'b011}], 
+					instruction_memory[{2'b0, addr, 3'b100}], instruction_memory[{2'b0, addr, 3'b101}],
+					instruction_memory[{2'b0, addr, 3'b110}], instruction_memory[{2'b0, addr, 3'b111}]});
+
 endmodule
