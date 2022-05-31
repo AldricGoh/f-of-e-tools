@@ -74,16 +74,6 @@ module branch_predictor(
 
 	reg		branch_mem_sig_reg;
 
-	/*
-	 *	The `initial` statement below uses Yosys's support for nonzero
-	 *	initial values:
-	 *
-	 *		https://github.com/YosysHQ/yosys/commit/0793f1b196df536975a044a4ce53025c81d00c7f
-	 *
-	 *	Rather than using this simulation construct (`initial`),
-	 *	the design should instead use a reset signal going to
-	 *	modules in the design and to thereby set the values.
-	 */
 	initial begin
 		s = 2'b00;
 		branch_mem_sig_reg = 1'b0;

@@ -211,15 +211,6 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 	
 	assign read_buf = (select2) ? out6 : out5;
 	
-	/*
-	 *	This uses Yosys's support for nonzero initial values:
-	 *
-	 *		https://github.com/YosysHQ/yosys/commit/0793f1b196df536975a044a4ce53025c81d00c7f
-	 *
-	 *	Rather than using this simulation construct (`initial`),
-	 *	the design should instead use a reset signal going to
-	 *	modules in the design.
-	 */
 	initial begin
 		$readmemh("verilog/data.hex", data_block);
 		clk_stall = 0;
@@ -231,6 +222,9 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 	always @(posedge clk) begin
 		if(memwrite == 1'b1 && addr == 32'h2000) begin
 			led_reg <= write_data;
+			if( | write_data == 1'b1) begin
+				$finish;
+			end
 		end
 	end
 
@@ -240,7 +234,6 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 	always @(posedge clk) begin
 		case (state)
 			IDLE: begin
-				clk_stall <= 0;
 				memread_buf <= memread;
 				memwrite_buf <= memwrite;
 				write_data_buffer <= write_data;
@@ -250,6 +243,8 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 				if(memwrite==1'b1 || memread==1'b1) begin
 					state <= READ_BUFFER;
 					clk_stall <= 1;
+				end else begin
+					clk_stall <= 0;
 				end
 			end
 
@@ -258,7 +253,6 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 				 *	Subtract out the size of the instruction memory.
 				 *	(Bad practice: The constant should be a `define).
 				 */
-				// HACKFIX: I don't really understand why?
 				word_buf <= data_block[addr_buf_block_addr];
 				if(memread_buf==1'b1) begin
 					state <= READ;
