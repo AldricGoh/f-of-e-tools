@@ -71,8 +71,16 @@ module branch_predictor(
 	 *	internal state
 	 */
 	reg [1:0]	s;
-
+	wire		gated_clk_sig;
 	reg		branch_mem_sig_reg;
+	reg			reset;
+
+	clk_gate gated_clk(
+		.clk(clk),
+		.enable(branch_mem_sig),
+		.rst(reset),
+		.clk_gated(gated_clk_sig)
+	);
 
 	/*
 	 *	The `initial` statement below uses Yosys's support for nonzero
@@ -87,9 +95,11 @@ module branch_predictor(
 	initial begin
 		s = 2'b00;
 		branch_mem_sig_reg = 1'b0;
+		reset = 1'b1;
+		reset = 1'b0; 
 	end
 
-	always @(negedge clk) begin
+	always @(negedge gated_clk_sig) begin
 		branch_mem_sig_reg <= branch_mem_sig;
 	end
 
@@ -98,7 +108,7 @@ module branch_predictor(
 	 *	therefore can use branch_mem_sig as every branch is followed by
 	 *	a bubble, so a 0 to 1 transition
 	 */
-	always @(posedge clk) begin
+	always @(posedge gated_clk_sig) begin
 		if (branch_mem_sig_reg) begin
 			s[1] <= (s[1]&s[0]) | (s[0]&actual_branch_decision) | (s[1]&actual_branch_decision);
 			s[0] <= (s[1]&(!s[0])) | ((!s[0])&actual_branch_decision) | (s[1]&actual_branch_decision);
