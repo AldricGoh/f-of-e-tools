@@ -214,20 +214,19 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 	/*
 		Implement gated clock signal
 	*/
-	wire 	read ;
-	wire 	write;
-	reg		reset;
-	wire	gated_clk_sig;
+	// wire 	read ;
+	// wire 	write;
+	// reg		reset;
+	// wire	gated_clk_sig;
 
-	assign read = memread;
-	assign write = memwrite;
+	// assign read = memread
 
-	clk_gate gated_clk(
-		.clk(clk),
-		.enable(read || write),
-		.rst(reset),
-		.clk_gated(gated_clk_sig)
-	);
+	// clk_gate gated_clk(
+	// 	.clk(clk),
+	// 	.enable(read || write),
+	// 	.rst(reset),
+	// 	.clk_gated(gated_clk_sig)
+	// );
 
 	/*
 	 *	This uses Yosys's support for nonzero initial values:
@@ -248,7 +247,7 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 	/*
 	 *	LED register interfacing with I/O
 	 */
-	always @(posedge gated_clk_sig) begin
+	always @(posedge clk) begin
 		if(memwrite == 1'b1 && addr == 32'h2000) begin
 			led_reg <= write_data;
 		end
@@ -257,7 +256,7 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 	/*
 	 *	State machine
 	 */
-	always @(posedge gated_clk_sig) begin
+	always @(posedge clk) begin
 		case (state)
 			IDLE: begin
 				clk_stall <= 0;
