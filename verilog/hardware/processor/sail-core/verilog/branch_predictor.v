@@ -97,7 +97,6 @@ module branch_predictor(
 
 	always @(negedge clk) begin
 		branch_mem_sig_reg <= branch_mem_sig;
-		last_addr <= current_addr_hash;
 	end
 
 	/*
