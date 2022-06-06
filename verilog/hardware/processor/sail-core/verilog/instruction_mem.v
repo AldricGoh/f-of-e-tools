@@ -59,14 +59,7 @@ module instruction_memory(addr, out);
 	 *		"SB_SPRAM256KA RAM does not support initialization through device configuration."
 	 *
 	 *	The only way to have an initializable memory is to use the Block RAM.
-	 *	This uses Yosys's support for nonzero initial values:
-	 *
-	 *		https://github.com/YosysHQ/yosys/commit/0793f1b196df536975a044a4ce53025c81d00c7f
-	 *
-	 *	Rather than using this simulation construct (`initial`),
-	 *	the design should instead use a reset signal going to
-	 *	modules in the design.
-	 */
+	*/
 	initial begin
 		/*
 		 *	read from "program.hex" and store the instructions in instruction memory
