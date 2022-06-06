@@ -74,10 +74,10 @@ module branch_predictor(
 
 	reg [1:0] state[0: 2**6 - 1];
 
-	wire [6:0] current_addr_hash;
+	wire [5:0] current_addr_flag;
 
-	reg [6:0] last_addr_hash;
-	reg [6:0] second_last_addr_hash;
+	reg [5:0] last_addr_flag;
+	reg [5:0] second_last_addr_flag;
 
 	/*
 	 *	The `initial` statement below uses Yosys's support for nonzero
@@ -106,14 +106,14 @@ module branch_predictor(
 	 */
 	always @(posedge clk) begin
 		if (branch_mem_sig_reg) begin
-			state[second_last_addr_hash][1] <= (state[second_last_addr_hash][1]&state[second_last_addr_hash][0]) | (state[second_last_addr_hash][0]&actual_branch_decision) | (state[second_last_addr_hash][1]&actual_branch_decision);
-			state[second_last_addr_hash][0] <= (state[second_last_addr_hash][1]&(!state[second_last_addr_hash][0])) | ((!state[second_last_addr_hash][0])&actual_branch_decision) | (state[second_last_addr_hash][1]&actual_branch_decision);
+			state[second_last_addr_flag][1] <= (state[second_last_addr_flag][1]&state[second_last_addr_flag][0]) | (state[second_last_addr_flag][0]&actual_branch_decision) | (state[second_last_addr_flag][1]&actual_branch_decision);
+			state[second_last_addr_flag][0] <= (state[second_last_addr_flag][1]&(!state[second_last_addr_flag][0])) | ((!state[second_last_addr_flag][0])&actual_branch_decision) | (state[second_last_addr_flag][1]&actual_branch_decision);
 		end
-		second_last_addr_hash <= last_addr_hash;
-		last_addr_hash <= current_addr_hash;
+		second_last_addr_flag <= last_addr_flag;
+		last_addr_flag <= current_addr_flag;
 	end
 
 	assign branch_addr = in_addr + offset;
-	assign current_addr_hash = in_addr[8:2];
-	assign prediction = state[current_addr_hash][1] & branch_decode_sig;
+	assign current_addr_flag = in_addr[7:2];
+	assign prediction = state[current_addr_flag][1] & branch_decode_sig;
 endmodule
