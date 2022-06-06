@@ -60,6 +60,7 @@ module top (led);
 
 	/*
 	 *	Use the iCE40's hard primitive for the clock source.
+	 *  1 for 6MHz and 0 for 12MHz
 	 */
 	SB_HFOSC #(.CLKHF_DIV("0b10")) OSCInst0 (
 		.CLKHFEN(ENCLKHF),
