@@ -78,7 +78,6 @@ module branch_predictor(
 	clk_gate gated_clk(
 		.clk(clk),
 		.enable(branch_mem_sig),
-		.rst(reset),
 		.clk_gated(gated_clk_sig)
 	);
 
@@ -95,8 +94,6 @@ module branch_predictor(
 	initial begin
 		s = 2'b00;
 		branch_mem_sig_reg = 1'b0;
-		reset = 1'b1;
-		reset = 1'b0; 
 	end
 
 	always @(negedge gated_clk_sig) begin

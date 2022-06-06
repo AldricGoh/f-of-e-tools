@@ -126,6 +126,10 @@ module cpu(
 	/*
 	 *	Execute stage
 	 */
+	wire [15:0]		alu_dataA_high;
+	wire [15:0]		alu_dataA_low;
+	wire [15:0]		alu_dataB_high;
+	wire [15:0]		alu_dataB_low;
 	wire [31:0]		ex_cont_mux_out;
 	wire [31:0]		addr_adder_mux_out;
 	wire [31:0]		alu_mux_out;
@@ -155,6 +159,8 @@ module cpu(
 	wire [31:0]		mem_fwd2_mux_out;
 	wire [31:0]		wb_fwd1_mux_out;
 	wire [31:0]		wb_fwd2_mux_out;
+	wire			isZeroA;
+	wire			isZeroB;
 	wire			mfwd1;
 	wire			mfwd2;
 	wire			wfwd1;

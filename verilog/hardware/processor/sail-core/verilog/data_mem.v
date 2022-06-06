@@ -210,24 +210,7 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 	assign out6 = (select1) ? out4 : out3;
 	
 	assign read_buf = (select2) ? out6 : out5;
-
-	/*
-		Implement gated clock signal
-	*/
-	// wire 	read ;
-	// wire 	write;
-	// reg		reset;
-	// wire	gated_clk_sig;
-
-	// assign read = memread
-
-	// clk_gate gated_clk(
-	// 	.clk(clk),
-	// 	.enable(read || write),
-	// 	.rst(reset),
-	// 	.clk_gated(gated_clk_sig)
-	// );
-
+	
 	/*
 	 *	This uses Yosys's support for nonzero initial values:
 	 *
@@ -240,8 +223,6 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 	initial begin
 		$readmemh("verilog/data.hex", data_block);
 		clk_stall = 0;
-		reset = 1'b1;
-		reset = 1'b0; 
 	end
 
 	/*

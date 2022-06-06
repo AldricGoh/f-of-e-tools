@@ -68,6 +68,7 @@ int main(void)
 	int i;
 	int maxindex = bsort_input_len - 1;
 
+	while(1){
 	*gDebugLedsMemoryMappedRegister = ~(*gDebugLedsMemoryMappedRegister);
 	while (maxindex > 0)
 	{
@@ -83,6 +84,7 @@ int main(void)
 		}
 
 		maxindex--;
+	}
 	}
 
 	return 0;
