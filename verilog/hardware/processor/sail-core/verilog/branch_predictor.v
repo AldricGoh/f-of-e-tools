@@ -70,12 +70,18 @@ module branch_predictor(
 	/*
 	 *	internal state
 	 */
-	reg [1:0]	s;
-
 	reg		branch_mem_sig_reg;
 
+	reg [1:0] state[0: 2**6 - 1];
+
+	wire [5:0] current_addr_flag;
+
+	reg [5:0] last_addr_flag;
+	reg [5:0] second_last_addr_flag;
+
+	integer i;
 	initial begin
-		s = 2'b00;
+		for (i=0; i<2**6; i=i+1) state[i] = 2'b00;
 		branch_mem_sig_reg = 1'b0;
 	end
 
@@ -90,11 +96,14 @@ module branch_predictor(
 	 */
 	always @(posedge clk) begin
 		if (branch_mem_sig_reg) begin
-			s[1] <= (s[1]&s[0]) | (s[0]&actual_branch_decision) | (s[1]&actual_branch_decision);
-			s[0] <= (s[1]&(!s[0])) | ((!s[0])&actual_branch_decision) | (s[1]&actual_branch_decision);
+			state[second_last_addr_flag][1] <= (state[second_last_addr_flag][1]&state[second_last_addr_flag][0]) | (state[second_last_addr_flag][0]&actual_branch_decision) | (state[second_last_addr_flag][1]&actual_branch_decision);
+			state[second_last_addr_flag][0] <= (state[second_last_addr_flag][1]&(!state[second_last_addr_flag][0])) | ((!state[second_last_addr_flag][0])&actual_branch_decision) | (state[second_last_addr_flag][1]&actual_branch_decision);
 		end
+		second_last_addr_flag <= last_addr_flag;
+		last_addr_flag <= current_addr_flag;
 	end
 
 	assign branch_addr = in_addr + offset;
-	assign prediction = s[1] & branch_decode_sig;
+	assign current_addr_flag = in_addr[7:2];
+	assign prediction = state[current_addr_flag][1] & branch_decode_sig;
 endmodule

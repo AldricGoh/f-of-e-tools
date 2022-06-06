@@ -249,10 +249,6 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 			end
 
 			READ_BUFFER: begin
-				/*
-				 *	Subtract out the size of the instruction memory.
-				 *	(Bad practice: The constant should be a `define).
-				 */
 				word_buf <= data_block[addr_buf_block_addr];
 				if(memread_buf==1'b1) begin
 					state <= READ;
@@ -270,12 +266,6 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 
 			WRITE: begin
 				clk_stall <= 0;
-
-				/*
-				 *	Subtract out the size of the instruction memory.
-				 *	(Bad practice: The constant should be a `define).
-				 */
-				// HACKFIX: I don't really understand why?
 				data_block[addr_buf_block_addr] <= replacement_word;
 				state <= IDLE;
 			end
