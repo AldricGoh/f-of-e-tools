@@ -79,16 +79,6 @@ module branch_predictor(
 	reg [5:0] last_addr_flag;
 	reg [5:0] second_last_addr_flag;
 
-	/*
-	 *	The `initial` statement below uses Yosys's support for nonzero
-	 *	initial values:
-	 *
-	 *		https://github.com/YosysHQ/yosys/commit/0793f1b196df536975a044a4ce53025c81d00c7f
-	 *
-	 *	Rather than using this simulation construct (`initial`),
-	 *	the design should instead use a reset signal going to
-	 *	modules in the design and to thereby set the values.
-	 */
 	integer i;
 	initial begin
 		for (i=0; i<2**6; i=i+1) state[i] = 2'b00;

@@ -74,16 +74,6 @@ module regfile(clk, write, wrAddr, wrData, rdAddrA, rdDataA, rdAddrB, rdDataB);
 	reg [31:0]	wrData_buf;
 	reg		write_buf;
 
-	/*
-	 *	The `initial` statement below uses Yosys's support for nonzero
-	 *	initial values:
-	 *
-	 *		https://github.com/YosysHQ/yosys/commit/0793f1b196df536975a044a4ce53025c81d00c7f
-	 *
-	 *	Rather than using this simulation construct (`initial`),
-	 *	the design should instead use a reset signal going to
-	 *	modules in the design and to thereby set the values.
-	 */
 
 	/*
 	 *	Sets register 0 to 0
