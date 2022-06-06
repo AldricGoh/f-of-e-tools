@@ -51,12 +51,18 @@ module top (led);
 	reg		ENCLKHF		= 1'b1;	// Plock enable
 	reg		CLKHF_POWERUP	= 1'b1;	// Power up the HFOSC circuit
 
+	// Comment out if not using iverilog
+	initial
+    begin
+        $dumpfile("test.vcd");
+        $dumpvars(0, top);
+    end
 
 	/*
 	 *	Use the iCE40's hard primitive for the clock source.
 	 *  1 for 6MHz and 0 for 12MHz
 	 */
-	SB_HFOSC #(.CLKHF_DIV("0b11")) OSCInst0 (
+	SB_HFOSC #(.CLKHF_DIV("0b10")) OSCInst0 (
 		.CLKHFEN(ENCLKHF),
 		.CLKHFPU(CLKHF_POWERUP),
 		.CLKHF(clk)

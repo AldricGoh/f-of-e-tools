@@ -210,16 +210,7 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 	assign out6 = (select1) ? out4 : out3;
 	
 	assign read_buf = (select2) ? out6 : out5;
-	
-	/*
-	 *	This uses Yosys's support for nonzero initial values:
-	 *
-	 *		https://github.com/YosysHQ/yosys/commit/0793f1b196df536975a044a4ce53025c81d00c7f
-	 *
-	 *	Rather than using this simulation construct (`initial`),
-	 *	the design should instead use a reset signal going to
-	 *	modules in the design.
-	 */
+
 	initial begin
 		$readmemh("verilog/data.hex", data_block);
 		clk_stall = 0;
@@ -231,60 +222,40 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 	always @(posedge clk) begin
 		if(memwrite == 1'b1 && addr == 32'h2000) begin
 			led_reg <= write_data;
+			if( | write_data == 1'b1) begin
+				$finish;
+			end
 		end
 	end
 
-	/*
-	 *	State machine
-	 */
 	always @(posedge clk) begin
-		case (state)
-			IDLE: begin
-				clk_stall <= 0;
-				memread_buf <= memread;
-				memwrite_buf <= memwrite;
-				write_data_buffer <= write_data;
-				addr_buf <= addr;
-				sign_mask_buf <= sign_mask;
-				
-				if(memwrite==1'b1 || memread==1'b1) begin
-					state <= READ_BUFFER;
+		if (memread_buf == 1'b0) begin
+			if (memwrite_buf == 1'b1) begin
+				data_block[addr_buf_block_addr] <= replacement_word;
+			end
+
+			memread_buf <= memread;
+			memwrite_buf <= memwrite;
+			write_data_buffer <= write_data;
+			addr_buf <= addr;
+			sign_mask_buf <= sign_mask;
+
+			if(memwrite==1'b1 || memread==1'b1) begin
+				if (memwrite_buf == 1'b1 && addr_buf_block_addr == addr[11:2]) begin
+					word_buf <= replacement_word;
+				end else begin
+					word_buf <= data_block[addr[11:2]];
+				end
+
+				if (memread == 1'b1) begin
 					clk_stall <= 1;
 				end
 			end
-
-			READ_BUFFER: begin
-				/*
-				 *	Subtract out the size of the instruction memory.
-				 *	(Bad practice: The constant should be a `define).
-				 */
-				word_buf <= data_block[addr_buf_block_addr - 32'h1000];
-				if(memread_buf==1'b1) begin
-					state <= READ;
-				end
-				else if(memwrite_buf == 1'b1) begin
-					state <= WRITE;
-				end
-			end
-
-			READ: begin
-				clk_stall <= 0;
-				read_data <= read_buf;
-				state <= IDLE;
-			end
-
-			WRITE: begin
-				clk_stall <= 0;
-
-				/*
-				 *	Subtract out the size of the instruction memory.
-				 *	(Bad practice: The constant should be a `define).
-				 */
-				data_block[addr_buf_block_addr - 32'h1000] <= replacement_word;
-				state <= IDLE;
-			end
-
-		endcase
+		end else begin
+			memread_buf <= 0;
+			clk_stall <= 0;
+			read_data <= read_buf;
+		end
 	end
 
 	/*
