@@ -70,15 +70,8 @@ module branch_predictor(
 	/*
 	 *	internal state
 	 */
-	wire		gated_clk_sig;
 	reg		branch_mem_sig_reg;
 	reg			reset;
-
-	clk_gate gated_clk(
-		.clk(clk),
-		.enable(branch_mem_sig),
-		.clk_gated(gated_clk_sig)
-	);
 
 	reg [1:0] state[0: 2**6 - 1];
 
@@ -93,7 +86,7 @@ module branch_predictor(
 		branch_mem_sig_reg = 1'b0;
 	end
 
-	always @(negedge gated_clk_sig) begin
+	always @(negedge clk) begin
 		branch_mem_sig_reg <= branch_mem_sig;
 	end
 
@@ -102,7 +95,7 @@ module branch_predictor(
 	 *	therefore can use branch_mem_sig as every branch is followed by
 	 *	a bubble, so a 0 to 1 transition
 	 */
-	always @(posedge gated_clk_sig) begin
+	always @(posedge clk) begin
 		if (branch_mem_sig_reg) begin
 			state[second_last_addr_flag][1] <= (state[second_last_addr_flag][1]&state[second_last_addr_flag][0]) | (state[second_last_addr_flag][0]&actual_branch_decision) | (state[second_last_addr_flag][1]&actual_branch_decision);
 			state[second_last_addr_flag][0] <= (state[second_last_addr_flag][1]&(!state[second_last_addr_flag][0])) | ((!state[second_last_addr_flag][0])&actual_branch_decision) | (state[second_last_addr_flag][1]&actual_branch_decision);
