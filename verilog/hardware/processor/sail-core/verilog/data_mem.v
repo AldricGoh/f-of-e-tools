@@ -70,7 +70,12 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 	/*
 	 *	Line buffer
 	 */
-	reg [31:0]		word_buf;
+	reg word_buf_stale;
+	reg [31:0] pipelined_word_buf;
+	reg [31:0] replacement_word_buf;
+
+	wire [31:0] word_buf;
+	assign word_buf = word_buf_stale ? replacement_word_buf : pipelined_word_buf;
 
 	/*
 	 *	Read buffer
@@ -222,9 +227,11 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 	always @(posedge clk) begin
 		if(memwrite == 1'b1 && addr == 32'h2000) begin
 			led_reg <= write_data;
+`ifdef SIMULATION
 			if( | write_data == 1'b1) begin
 				$finish;
 			end
+`endif
 		end
 	end
 
@@ -241,11 +248,9 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 			sign_mask_buf <= sign_mask;
 
 			if(memwrite==1'b1 || memread==1'b1) begin
-				if (memwrite_buf == 1'b1 && addr_buf_block_addr == addr[11:2]) begin
-					word_buf <= replacement_word;
-				end else begin
-					word_buf <= data_block[addr[11:2]];
-				end
+				pipelined_word_buf <= data_block[addr[11:2]];
+				replacement_word_buf <= replacement_word;
+				word_buf_stale <= (memwrite_buf==1'b1 && addr[11:2] == addr_buf_block_addr);
 
 				if (memread == 1'b1) begin
 					clk_stall <= 1;

@@ -14,7 +14,6 @@ CFLAGS		= -march=rv32i -mabi=ilp32 $(TARGET-ARCH-FLAGS) -Wall
 ASFLAGS		= --march=rv32i --mabi=ilp32
 LDFLAGS		= -L$(TOOLSLIB)/$(TARGET) -Map $(PROGRAM).map -Tsail.ld
 LDFLAGS-SF	= -Ttext $(LOADADDR-SF)  -L$(TOOLSLIB)/$(TARGET) -Map $(PROGRAM).map
-SREC2HEX	= srec2hex
 LOADADDR-SF	= 0x08004000
 
 OBJS		=\

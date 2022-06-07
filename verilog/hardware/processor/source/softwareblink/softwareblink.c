@@ -19,22 +19,17 @@ int main(void)
 	 *	to the address. See the PCF file for how those 8 pins are
 	 *	mapped.
 	 */
+	*gDebugLedsMemoryMappedRegister = 0x00;
 	while (1)
 	{
-		*gDebugLedsMemoryMappedRegister = 0xFF;
 
 		/*
 		 *	Spin
 		 */
 		for (int j = 0; j < kSpinDelay; j++)
-			;
+		{
+		}
 
-		*gDebugLedsMemoryMappedRegister = 0x00;
-
-		/*
-		 *	Spin
-		 */
-		for (int j = 0; j < kSpinDelay; j++)
-			;
+		*gDebugLedsMemoryMappedRegister = ~(*gDebugLedsMemoryMappedRegister);
 	}
 }

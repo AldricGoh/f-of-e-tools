@@ -89,7 +89,12 @@ module cpu(
 	 */
 	wire [63:0]			if_id_out;
 	wire [177:0]		id_ex_out;
+
+	// THIS IS A SAIL BUG!!
+	/* verilator lint_off UNOPTFLAT */
 	wire [154:0]		ex_mem_out;
+	/* verilator lint_on UNOPTFLAT */
+
 	wire [116:0]		mem_wb_out;
 
 	/*
@@ -126,10 +131,6 @@ module cpu(
 	/*
 	 *	Execute stage
 	 */
-	wire [15:0]		alu_dataA_high;
-	wire [15:0]		alu_dataA_low;
-	wire [15:0]		alu_dataB_high;
-	wire [15:0]		alu_dataB_low;
 	wire [31:0]		ex_cont_mux_out;
 	wire [31:0]		addr_adder_mux_out;
 	wire [31:0]		alu_mux_out;
@@ -159,8 +160,6 @@ module cpu(
 	wire [31:0]		mem_fwd2_mux_out;
 	wire [31:0]		wb_fwd1_mux_out;
 	wire [31:0]		wb_fwd2_mux_out;
-	wire			isZeroA;
-	wire			isZeroB;
 	wire			mfwd1;
 	wire			mfwd2;
 	wire			wfwd1;
@@ -177,7 +176,6 @@ module cpu(
 	wire			mistake_trigger;
 	wire			decode_ctrl_mux_sel;
 	wire			inst_mux_sel;
-
 
 
 	wire[31:0] mem_regwb_mux_out; //TODO copy of wb_mux but in mem stage, move back and cleanup
