@@ -17,6 +17,7 @@ SECTIONS
 
 	.data . :
 	{
+		. = 0x0010;
 		*(.data)
 	}
 

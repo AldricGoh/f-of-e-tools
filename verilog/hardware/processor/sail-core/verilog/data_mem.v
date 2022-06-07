@@ -204,8 +204,6 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 	assign read_buf = (select2) ? out6 : out5;
 
 	// FIX SOFTWARE BLINK
-	wire writing_to_LED;
-	assign writing_to_LED = (memwrite == 1'b1 && addr == 32'h2000);
 
 	initial begin
 		$readmemh("verilog/data.hex", data_block);
@@ -217,7 +215,7 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 	 *	LED register interfacing with I/O
 	 */
 	always @(posedge clk) begin
-		if(writing_to_LED) begin
+		if(memwrite == 1'b1 && addr == 32'h2000) begin
 			led_reg <= write_data;
 `ifdef SIMULATION
 			if( | write_data == 1'b1) begin
@@ -234,7 +232,7 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 			end
 
 			memread_buf <= memread;
-			memwrite_buf <= !writing_to_LED && memwrite;
+			memwrite_buf <= memwrite;
 			write_data_buffer <= write_data;
 			addr_buf <= addr;
 			sign_mask_buf <= sign_mask;
