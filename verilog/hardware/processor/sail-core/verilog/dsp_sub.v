@@ -28,7 +28,7 @@ module dsp_sub(input1, input2, out, carry_out);
 		// .OLOADTOP(1'b0),
 		// .OLOADBOT(1'b0),
 		.ADDSUBTOP(1'b1),
-		.ADDSUBBOT(1'b0),
+		.ADDSUBBOT(1'b1),
 		.CO(carry_out),
 		.CI(1'b0),
 		// .ACCUMCI(1'b0),
