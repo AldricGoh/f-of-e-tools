@@ -1,25 +1,20 @@
 /*
 	Authored 2018-2019, Ryan Voo.
-
 	All rights reserved.
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions
 	are met:
-
 	*	Redistributions of source code must retain the above
 		copyright notice, this list of conditions and the following
 		disclaimer.
-
 	*	Redistributions in binary form must reproduce the above
 		copyright notice, this list of conditions and the following
 		disclaimer in the documentation and/or other materials
 		provided with the distribution.
-
 	*	Neither the name of the author nor the names of its
 		contributors may be used to endorse or promote products
 		derived from this software without specific prior written
 		permission.
-
 	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -70,30 +65,26 @@ module branch_predictor(
 	/*
 	 *	internal state
 	 */
-	wire		gated_clk_sig;
+	reg [1:0]	s;
+
 	reg		branch_mem_sig_reg;
-	reg			reset;
 
-	clk_gate gated_clk(
-		.clk(clk),
-		.enable(branch_mem_sig),
-		.clk_gated(gated_clk_sig)
-	);
-
-	reg [1:0] state[0: 2**6 - 1];
-
-	wire [5:0] current_addr_flag;
-
-	reg [5:0] last_addr_flag;
-	reg [5:0] second_last_addr_flag;
-
-	integer i;
+	/*
+	 *	The `initial` statement below uses Yosys's support for nonzero
+	 *	initial values:
+	 *
+	 *		https://github.com/YosysHQ/yosys/commit/0793f1b196df536975a044a4ce53025c81d00c7f
+	 *
+	 *	Rather than using this simulation construct (`initial`),
+	 *	the design should instead use a reset signal going to
+	 *	modules in the design and to thereby set the values.
+	 */
 	initial begin
-		for (i=0; i<2**6; i=i+1) state[i] = 2'b00;
+		s = 2'b00;
 		branch_mem_sig_reg = 1'b0;
 	end
 
-	always @(negedge gated_clk_sig) begin
+	always @(negedge clk) begin
 		branch_mem_sig_reg <= branch_mem_sig;
 	end
 
@@ -102,16 +93,13 @@ module branch_predictor(
 	 *	therefore can use branch_mem_sig as every branch is followed by
 	 *	a bubble, so a 0 to 1 transition
 	 */
-	always @(posedge gated_clk_sig) begin
+	always @(posedge clk) begin
 		if (branch_mem_sig_reg) begin
-			state[second_last_addr_flag][1] <= (state[second_last_addr_flag][1]&state[second_last_addr_flag][0]) | (state[second_last_addr_flag][0]&actual_branch_decision) | (state[second_last_addr_flag][1]&actual_branch_decision);
-			state[second_last_addr_flag][0] <= (state[second_last_addr_flag][1]&(!state[second_last_addr_flag][0])) | ((!state[second_last_addr_flag][0])&actual_branch_decision) | (state[second_last_addr_flag][1]&actual_branch_decision);
+			s[1] <= (s[1]&s[0]) | (s[0]&actual_branch_decision) | (s[1]&actual_branch_decision);
+			s[0] <= (s[1]&(!s[0])) | ((!s[0])&actual_branch_decision) | (s[1]&actual_branch_decision);
 		end
-		second_last_addr_flag <= last_addr_flag;
-		last_addr_flag <= current_addr_flag;
 	end
 
 	assign branch_addr = in_addr + offset;
-	assign current_addr_flag = in_addr[7:2];
-	assign prediction = state[current_addr_flag][1] & branch_decode_sig;
+	assign prediction = s[1] & branch_decode_sig;
 endmodule
