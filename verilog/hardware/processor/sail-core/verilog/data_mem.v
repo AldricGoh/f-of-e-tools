@@ -1,25 +1,20 @@
 /*
 	Authored 2018-2019, Ryan Voo.
-
 	All rights reserved.
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions
 	are met:
-
 	*	Redistributions of source code must retain the above
 		copyright notice, this list of conditions and the following
 		disclaimer.
-
 	*	Redistributions in binary form must reproduce the above
 		copyright notice, this list of conditions and the following
 		disclaimer in the documentation and/or other materials
 		provided with the distribution.
-
 	*	Neither the name of the author nor the names of its
 		contributors may be used to endorse or promote products
 		derived from this software without specific prior written
 		permission.
-
 	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -55,14 +50,22 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 	reg [31:0]		led_reg;
 
 	/*
+	 *	Current state
+	 */
+	integer			state = 0;
+
+	/*
+	 *	Possible states
+	 */
+	parameter		IDLE = 0;
+	parameter		READ_BUFFER = 1;
+	parameter		READ = 2;
+	parameter		WRITE = 3;
+
+	/*
 	 *	Line buffer
 	 */
-	reg word_buf_stale;
-	reg [31:0] pipelined_word_buf;
-	reg [31:0] replacement_word_buf;
-
-	wire [31:0] word_buf;
-	assign word_buf = word_buf_stale ? replacement_word_buf : pipelined_word_buf;
+	reg [31:0]		word_buf;
 
 	/*
 	 *	Read buffer
@@ -202,12 +205,18 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 	assign out6 = (select1) ? out4 : out3;
 	
 	assign read_buf = (select2) ? out6 : out5;
-
-	// FIX SOFTWARE BLINK
-
+	
+	/*
+	 *	This uses Yosys's support for nonzero initial values:
+	 *
+	 *		https://github.com/YosysHQ/yosys/commit/0793f1b196df536975a044a4ce53025c81d00c7f
+	 *
+	 *	Rather than using this simulation construct (`initial`),
+	 *	the design should instead use a reset signal going to
+	 *	modules in the design.
+	 */
 	initial begin
 		$readmemh("verilog/data.hex", data_block);
-		led_reg = 0;
 		clk_stall = 0;
 	end
 
@@ -225,32 +234,57 @@ module data_mem (clk, addr, write_data, memwrite, memread, sign_mask, read_data,
 		end
 	end
 
+	/*
+	 *	State machine
+	 */
 	always @(posedge clk) begin
-		if (memread_buf == 1'b0) begin
-			if (memwrite_buf == 1'b1) begin
-				data_block[addr_buf_block_addr] <= replacement_word;
-			end
-
-			memread_buf <= memread;
-			memwrite_buf <= memwrite;
-			write_data_buffer <= write_data;
-			addr_buf <= addr;
-			sign_mask_buf <= sign_mask;
-
-			if(memwrite==1'b1 || memread==1'b1) begin
-				pipelined_word_buf <= data_block[addr[11:2]];
-				replacement_word_buf <= replacement_word;
-				word_buf_stale <= (memwrite_buf==1'b1 && addr[11:2] == addr_buf_block_addr);
-
-				if (memread == 1'b1) begin
+		case (state)
+			IDLE: begin
+				clk_stall <= 0;
+				memread_buf <= memread;
+				memwrite_buf <= memwrite;
+				write_data_buffer <= write_data;
+				addr_buf <= addr;
+				sign_mask_buf <= sign_mask;
+				
+				if(memwrite==1'b1 || memread==1'b1) begin
+					state <= READ_BUFFER;
 					clk_stall <= 1;
 				end
 			end
-		end else begin
-			memread_buf <= 0;
-			clk_stall <= 0;
-			read_data <= read_buf;
-		end
+
+			READ_BUFFER: begin
+				/*
+				 *	Subtract out the size of the instruction memory.
+				 *	(Bad practice: The constant should be a `define).
+				 */
+				word_buf <= data_block[addr_buf_block_addr];
+				if(memread_buf==1'b1) begin
+					state <= READ;
+				end
+				else if(memwrite_buf == 1'b1) begin
+					state <= WRITE;
+				end
+			end
+
+			READ: begin
+				clk_stall <= 0;
+				read_data <= read_buf;
+				state <= IDLE;
+			end
+
+			WRITE: begin
+				clk_stall <= 0;
+
+				/*
+				 *	Subtract out the size of the instruction memory.
+				 *	(Bad practice: The constant should be a `define).
+				 */
+				data_block[addr_buf_block_addr] <= replacement_word;
+				state <= IDLE;
+			end
+
+		endcase
 	end
 
 	/*
