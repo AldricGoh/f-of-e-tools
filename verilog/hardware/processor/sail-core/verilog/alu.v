@@ -1,25 +1,20 @@
 /*
 	Authored 2018-2019, Ryan Voo.
-
 	All rights reserved.
 	Redistribution and use in source and binary forms, with or without
 	modification, are permitted provided that the following conditions
 	are met:
-
 	*	Redistributions of source code must retain the above
 		copyright notice, this list of conditions and the following
 		disclaimer.
-
 	*	Redistributions in binary form must reproduce the above
 		copyright notice, this list of conditions and the following
 		disclaimer in the documentation and/or other materials
 		provided with the distribution.
-
 	*	Neither the name of the author nor the names of its
 		contributors may be used to endorse or promote products
 		derived from this software without specific prior written
 		permission.
-
 	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 	"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
 	LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -61,6 +56,29 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 	output reg [31:0]	ALUOut;
 	output reg		Branch_Enable;
 
+  // DSP wires
+  wire [31:0] add_out;
+  wire [31:0] sub_out;
+  wire carry_out;
+
+  // Adder for accumulator
+  dsp_add async32add(
+    .input1(A),
+    .input2(B),
+    // .add_sub(add_sub),
+    .out(add_out),
+    // .carry_out(carry_out)
+  );
+
+  dsp_sub async32add_sub(
+    .input1(A),
+    .input2(B),
+    // .add_sub(add_sub),
+    .out(sub_out),
+    .carry_out(carry_out)
+  );
+
+
 	initial begin
 		ALUOut = 32'b0;
 		Branch_Enable = 1'b0;
@@ -81,12 +99,12 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 			/*
 			 *	ADD (the fields also match AUIPC, all loads, all stores, and ADDI)
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_ADD:	ALUOut = A + B;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_ADD:	ALUOut = add_out; /*A + B;*/
 
 			/*
 			 *	SUBTRACT (the fields also matches all branches)
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SUB:	ALUOut = A - B;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SUB:	ALUOut = sub_out; /*A - B;*/
 
 			/*
 			 *	SLT (the fields also matches all the other SLT variants)
@@ -141,8 +159,8 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BNE:	Branch_Enable = !(ALUOut == 0);
 			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BLT:	Branch_Enable = ($signed(A) < $signed(B));
 			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BGE:	Branch_Enable = ($signed(A) >= $signed(B));
-			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BLTU:	Branch_Enable = ($unsigned(A) < $unsigned(B));
-			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BGEU:	Branch_Enable = ($unsigned(A) >= $unsigned(B));
+			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BLTU:	Branch_Enable = ~carry_out;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BGEU:	Branch_Enable = carry_out;
 
 			default:					Branch_Enable = 1'b0;
 		endcase
