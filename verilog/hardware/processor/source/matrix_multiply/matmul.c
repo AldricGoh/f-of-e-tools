@@ -32,7 +32,7 @@ int main(){
             }
         }
     }
-    if (result) {
+    if (1) {
         *gDebugLedsMemoryMappedRegister = ~(*gDebugLedsMemoryMappedRegister);
     }
     }
