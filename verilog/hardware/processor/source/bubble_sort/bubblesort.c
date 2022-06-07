@@ -1,6 +1,7 @@
 int main(void)
 {
 	volatile unsigned int *gDebugLedsMemoryMappedRegister = (unsigned int *)0x2000;
+  while (1){
 	unsigned char bsort_input[] =
 		{
 			0x53,
@@ -69,8 +70,6 @@ int main(void)
 	int maxindex = bsort_input_len - 1;
 	*gDebugLedsMemoryMappedRegister = 0;
 
-	while (1)
-	{
 		while (maxindex > 0)
 		{
 			for (i = 0; i < maxindex; i++)
@@ -87,7 +86,6 @@ int main(void)
 			maxindex--;
 		}
 		*gDebugLedsMemoryMappedRegister = ~(*gDebugLedsMemoryMappedRegister);
-	}
 	}
 
 	return 0;
