@@ -192,7 +192,8 @@ module cpu(
 			.out(pc_in)
 		);
 
-	adder pc_adder(
+	// adder pc_adder(
+    dsp_add pc_adder(
 			.input1(32'b100),
 			.input2(pc_out),
 			.out(pc_adder_out)
@@ -341,7 +342,8 @@ module cpu(
 			.out(addr_adder_mux_out)
 		);
 
-	adder addr_adder(
+	// adder addr_adder(
+    dsp_add addr_adder(
 			.input1(addr_adder_mux_out),
 			.input2(id_ex_out[139:108]),
 			.out(addr_adder_sum)
