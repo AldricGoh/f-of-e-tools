@@ -1,9 +1,11 @@
+volatile unsigned int *gDebugLedsMemoryMappedRegister = (unsigned int *)0x2000;
+enum {
+	kSpinDelay = 400000,
+};
+
 int main(void)
 {
-	enum
-	{
-		kSpinDelay = 400000,
-	};
+
 
 	/*
 	 *	Reading from the special address 0x2000 will cause sail to
@@ -11,7 +13,6 @@ int main(void)
 	 *	to the address. See the PCF file for how those 8 pins are
 	 *	mapped.
 	 */
-	volatile unsigned int *gDebugLedsMemoryMappedRegister = (unsigned int *)0x2000;
 	/*
 	 *	Reading from the special address pointed to by
 	 *	kDebugLedsMemoryMappedRegister will cause the processor to
@@ -21,20 +22,20 @@ int main(void)
 	 */
 	while (1)
 	{
-		*gDebugLedsMemoryMappedRegister = 0xFF;
 
 		/*
 		 *	Spin
 		 */
 		for (int j = 0; j < kSpinDelay; j++)
-			;
+		{
+		}
 
 		*gDebugLedsMemoryMappedRegister = 0x00;
 
-		/*
-		 *	Spin
-		 */
 		for (int j = 0; j < kSpinDelay; j++)
-			;
+		{
+		}
+
+		*gDebugLedsMemoryMappedRegister = 0xFF;
 	}
 }

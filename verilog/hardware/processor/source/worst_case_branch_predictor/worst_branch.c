@@ -1,5 +1,4 @@
-int
-main(void)
+int main(void)
 {
 	enum
 	{
@@ -14,10 +13,15 @@ main(void)
 	 *	to the address. See the PCF file for how those 8 pins are
 	 *	mapped.
 	 */
-	int p=0;
-	*gDebugLedsMemoryMappedRegister = ~(*gDebugLedsMemoryMappedRegister);
-
-	for (int j = 0; j < kSpinDelay; j++) {
-		for (int j2 = 0; j2 < p; j2++);
-	};
+	*gDebugLedsMemoryMappedRegister = 0x00;
+	while (1)
+	{
+		int p = 0;
+		for (int j = 0; j < kSpinDelay; j++)
+		{
+			for (int j2 = 0; j2 < p; j2++)
+				;
+		};
+		*gDebugLedsMemoryMappedRegister = ~(*gDebugLedsMemoryMappedRegister);
+	}
 }

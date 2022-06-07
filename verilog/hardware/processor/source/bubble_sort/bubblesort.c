@@ -67,23 +67,26 @@ int main(void)
 	const int bsort_input_len = 0x3b;
 	int i;
 	int maxindex = bsort_input_len - 1;
+	*gDebugLedsMemoryMappedRegister = 0;
 
-	while(1){
-	*gDebugLedsMemoryMappedRegister = ~(*gDebugLedsMemoryMappedRegister);
-	while (maxindex > 0)
+	while (1)
 	{
-		for (i = 0; i < maxindex; i++)
+		while (maxindex > 0)
 		{
-			if (bsort_input[i] > bsort_input[i + 1])
+			for (i = 0; i < maxindex; i++)
 			{
-				/*		swap		*/
-				bsort_input[i] ^= bsort_input[i + 1];
-				bsort_input[i + 1] ^= bsort_input[i];
-				bsort_input[i] ^= bsort_input[i + 1];
+				if (bsort_input[i] > bsort_input[i + 1])
+				{
+					/*		swap		*/
+					bsort_input[i] ^= bsort_input[i + 1];
+					bsort_input[i + 1] ^= bsort_input[i];
+					bsort_input[i] ^= bsort_input[i + 1];
+				}
 			}
-		}
 
-		maxindex--;
+			maxindex--;
+		}
+		*gDebugLedsMemoryMappedRegister = ~(*gDebugLedsMemoryMappedRegister);
 	}
 	}
 

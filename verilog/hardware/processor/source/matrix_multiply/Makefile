@@ -4,8 +4,8 @@ include $(TREEROOT)/tools/sunflower/conf/setup.conf
 TARGET-ARCH	= riscv32-elf
 TARGET		= riscv
 
-PROGRAM		= worst_branch
-PROGRAM-SF	= worst_branch-sf
+PROGRAM		= matmul
+PROGRAM-SF	= matmul-sf
 INIT		= init
 INIT-SF		= init-sf
 
