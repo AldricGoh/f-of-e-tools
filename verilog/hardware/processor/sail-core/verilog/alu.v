@@ -84,6 +84,9 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
   .carry_out(carry_out)
   );	
 
+  // DSP signed comparison
+  
+
 	/*
 	 *	This uses Yosys's support for nonzero initial values:
 	 *
