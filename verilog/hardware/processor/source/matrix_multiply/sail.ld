@@ -1,0 +1,28 @@
+OUTPUT_FORMAT("elf32-littleriscv")
+OUTPUT_ARCH(riscv)
+
+ENTRY(_start)
+
+SECTIONS
+{
+	. = 0x00;
+	.text . :
+	{
+		_text = . ;
+		*(.text) 
+		. = 0x1000;
+		*(.strings)
+		_etext = . ;
+	}
+
+	.data . :
+	{
+		. = 0x0010;
+		*(.data)
+	}
+
+	.bss . :
+	{ 
+		*(.bss)
+	}
+}
