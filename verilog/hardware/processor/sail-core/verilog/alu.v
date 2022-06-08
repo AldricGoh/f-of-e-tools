@@ -127,7 +127,7 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 			/*
 			 *	SLT (the fields also matches all the other SLT variants)
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SLT:	ALUOut = signed_Aless_thanB_out; // $signed(A) < $signed(B) ? 32'b1 : 32'b0;;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SLT:	ALUOut = signed_Aless_thanB_out ? 32'b1 : 32'b0; // $signed(A) < $signed(B) ? 32'b1 : 32'b0;;
 
 			/*
 			 *	SRL (the fields also matches the other SRL variants)
