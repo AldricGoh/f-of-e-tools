@@ -1,3 +1,10 @@
+/*
+*   Descriptiono:
+*   
+*     This module implements a (unsigned) subtractor using the DSP
+*
+*/
+
 module dsp_sub(input1, input2, out, carry_out);
   input [31:0] input1;
   input [31:0] input2;
