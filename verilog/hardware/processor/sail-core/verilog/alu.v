@@ -65,6 +65,7 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
   wire [31:0] add_out;
   wire [31:0] sub_out;
   wire carry_out;
+  wire signed_Aless_thanB_out;
 
   // DSP add
   dsp_add async32add(
@@ -85,7 +86,7 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
   );	
 
   // DSP signed comparison
-  
+  assign signed_Aless_thanB_out = A[31] ? (B[31] ? ~carry_out : 1'b1) : (B[31] ? 1'b0 : ~carry_out);
 
 	/*
 	 *	This uses Yosys's support for nonzero initial values:
@@ -126,7 +127,7 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 			/*
 			 *	SLT (the fields also matches all the other SLT variants)
 			 */
-			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SLT:	ALUOut = $signed(A) < $signed(B) ? 32'b1 : 32'b0;
+			`kSAIL_MICROARCHITECTURE_ALUCTL_3to0_SLT:	ALUOut = signed_Aless_thanB_out; // $signed(A) < $signed(B) ? 32'b1 : 32'b0;;
 
 			/*
 			 *	SRL (the fields also matches the other SRL variants)
@@ -174,8 +175,8 @@ module alu(ALUctl, A, B, ALUOut, Branch_Enable);
 		case (ALUctl[6:4])
 			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BEQ:	Branch_Enable = (ALUOut == 0);
 			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BNE:	Branch_Enable = !(ALUOut == 0);
-			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BLT:	Branch_Enable = ($signed(A) < $signed(B));
-			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BGE:	Branch_Enable = ($signed(A) >= $signed(B));
+			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BLT:	Branch_Enable = signed_Aless_thanB_out; // ($signed(A) < $signed(B));
+			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BGE:	Branch_Enable = ~signed_Aless_thanB_out; // ($signed(A) >= $signed(B));
 			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BLTU:	Branch_Enable = (~carry_out);
 			`kSAIL_MICROARCHITECTURE_ALUCTL_6to4_BGEU:	Branch_Enable = (carry_out);
 
